@@ -1,13 +1,14 @@
 package domain
 
 type CountResponse struct {
-	Word  string `json:"word"`
-	Count int    `json:"count"`
-	Error string `json:"error,omitempty"`
+	Word   string `json:"word"`
+	Count  int    `json:"count"`
+	Amount string `json:"amount"`
+	Error  string `json:"error,omitempty"`
 }
 
 type PDFProcessor interface {
-	CountWordOccurrences(filePath, word string) (int, error)
+	CountWordOccurrences(filePath, word string) (int, float64, error)
 }
 
 var InvalidPhrases = map[string]struct{}{

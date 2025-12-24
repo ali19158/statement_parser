@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -56,15 +57,16 @@ func (h *CountHandler) handleCount(w http.ResponseWriter, r *http.Request) {
 	}
 	defer h.pdfService.CleanupFile(tmpFilePath)
 
-	count, err := h.pdfService.CountWordFromFile(tmpFilePath, word)
+	count, amount, err := h.pdfService.CountWordFromFile(tmpFilePath, word)
 	if err != nil {
 		h.respondWithError(w, "failed to process PDF", http.StatusInternalServerError)
 		return
 	}
 
 	h.respondWithJSON(w, http.StatusOK, domain.CountResponse{
-		Word:  word,
-		Count: count,
+		Word:   word,
+		Count:  count,
+		Amount: fmt.Sprintf("%.2f", amount),
 	})
 }
 
