@@ -12,22 +12,38 @@ import (
 
 type PDFRepository struct {
 	invalidPhrases map[string]struct{}
+	langWords      map[string]string
 }
 
 func NewPDFRepository() *PDFRepository {
 	return &PDFRepository{
 		invalidPhrases: domain.InvalidPhrases,
+		langWords:      domain.LangWords,
 	}
 }
 
-func (r *PDFRepository) CountWordOccurrences(pdfPath, word string) (int, float64, error) {
+// defines language by the second row of the first page of pdf
+func (r *PDFRepository) getKeyWordByLang(rdr *pdf.Reader) (word string) {
+	word = "Пополнение"
+	p := rdr.Page(1)
+	content, err := p.GetPlainText(nil)
+	if err != nil {
+		return
+	}
+	lines := strings.Split(content, "\n")
+	word, _ = r.langWords[lines[2]]
+	return strings.TrimSpace(strings.ToLower(word))
+}
+
+func (r *PDFRepository) CountWordOccurrences(pdfPath string) (int, float64, error) {
+
 	f, rdr, err := pdf.Open(pdfPath)
 	if err != nil {
 		return 0, 0, err
 	}
 	defer f.Close()
 
-	word = strings.TrimSpace(strings.ToLower(word))
+	word := r.getKeyWordByLang(rdr)
 	count := 0
 	amount := 0.0
 	totalPages := rdr.NumPage()
@@ -75,7 +91,6 @@ func (r *PDFRepository) countWordInContent(content, word string) (int, float64) 
 			cleaned := strings.ReplaceAll(amount, "₸", "")
 			cleaned = strings.ReplaceAll(cleaned, " ", "")
 
-			// Replace comma with dot for decimal parsing
 			cleaned = strings.ReplaceAll(cleaned, ",", ".")
 
 			// Parse to float64

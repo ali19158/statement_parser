@@ -30,7 +30,6 @@ func (h *CountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CountHandler) handleCount(w http.ResponseWriter, r *http.Request) {
-	word := "Пополнение"
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -57,14 +56,13 @@ func (h *CountHandler) handleCount(w http.ResponseWriter, r *http.Request) {
 	}
 	defer h.pdfService.CleanupFile(tmpFilePath)
 
-	count, amount, err := h.pdfService.CountWordFromFile(tmpFilePath, word)
+	count, amount, err := h.pdfService.CountWordFromFile(tmpFilePath)
 	if err != nil {
 		h.respondWithError(w, "failed to process PDF", http.StatusInternalServerError)
 		return
 	}
 
 	h.respondWithJSON(w, http.StatusOK, domain.CountResponse{
-		Word:   word,
 		Count:  count,
 		Amount: fmt.Sprintf("%.2f", amount),
 	})

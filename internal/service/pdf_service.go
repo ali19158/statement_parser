@@ -14,8 +14,8 @@ func NewPDFService(repo domain.PDFProcessor) *PDFService {
 	return &PDFService{repo: repo}
 }
 
-func (s *PDFService) CountWordFromFile(filePath, word string) (int, float64, error) {
-	return s.repo.CountWordOccurrences(filePath, word)
+func (s *PDFService) CountWordFromFile(filePath string) (int, float64, error) {
+	return s.repo.CountWordOccurrences(filePath)
 }
 
 func (s *PDFService) SaveUploadedFile(fileContent []byte) (string, error) {
